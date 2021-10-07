@@ -8,6 +8,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "locais")
 data class Local (
-    @PrimaryKey(autoGenerate = true) var id: Int? = null,
+    @PrimaryKey(autoGenerate = true) var localId: Int? = null,
     var nome: String
 ): Parcelable

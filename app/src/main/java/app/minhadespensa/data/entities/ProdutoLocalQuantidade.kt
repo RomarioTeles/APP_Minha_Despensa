@@ -1,11 +1,13 @@
 package app.minhadespensa.data.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "produto_local_quantidade", primaryKeys = ["produtoId", "localId"])
 data class ProdutoLocalQuantidade(
-    var produtoId : Int,
-    var localId : Int,
-    var quantidade : Int
+    @ColumnInfo(name="produtoId", index = true) var produtoId : Int,
+    @ColumnInfo(name="localId", index = true) var localId : Int,
+    @ColumnInfo(name="quantidade") var quantidade : Int,
+    @ColumnInfo(name="status") var status: EnumStatus = EnumStatus.FECHADO
 )

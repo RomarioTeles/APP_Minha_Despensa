@@ -11,7 +11,7 @@ interface LocaisDAO {
     @Query("SELECT * FROM locais order by nome")
     fun findAll() : Flow<List<Local>>
 
-    @Query("SELECT * FROM locais WHERE id = :id")
+    @Query("SELECT * FROM locais WHERE localId = :id")
     fun getOne(id: Int): Local
 
     @Query("SELECT * FROM locais WHERE nome like '%' || :nome || '%' ")

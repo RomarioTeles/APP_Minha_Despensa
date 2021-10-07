@@ -23,11 +23,11 @@ object DbModule{
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDB
     {
-        return Room.databaseBuilder(context, AppDB::class.java, "appminhadespensa.db").fallbackToDestructiveMigration().build()
+        return Room.databaseBuilder(context, AppDB::class.java, "appminhadespensa2.db").fallbackToDestructiveMigration().build()
     }
 
     @Provides
-    fun ProdutosRepository(db: AppDB) = app.minhadespensa.data.repositories.ProdutosRepository(db)
+    fun ProdutosRepository(db: AppDB) = app.minhadespensa.data.repositories.ProdutosRepository(db, ProdutosLocaisQuantidadeRepository(db))
 
     @Provides
     fun CategoriasRepository(db: AppDB) = app.minhadespensa.data.repositories.CategoriasRepository(db)

@@ -18,12 +18,14 @@ import app.minhadespensa.data.entities.Local
 import app.minhadespensa.listagemCategorias.ListagemCategoriasScreen
 import app.minhadespensa.listagemLocais.ListagemLocaisScreen
 import app.minhadespensa.telacadastroCategoria.TelaCadastroCategoriaScreen
+import app.minhadespensa.telacadastroProduto.TelaCadastroProdutoScreen
 import app.minhadespensa.telacadastrolocal.TelaCadastroLocalScreen
 import app.minhadespensa.ui.theme.MinhadepensaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -45,6 +47,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("TelaListagemCategoria"){
                         ListagemLocaisScreen(navController = navController)
+                    }
+                    composable("TelaCadastroProduto"){
+                        TelaCadastroProdutoScreen(navController = navController)
                     }
 
                     /*composable("TelaDetalhesLocal"){
@@ -68,13 +73,15 @@ fun TelaInicial(navHostController: NavHostController) {
 
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun IconTab(navHostController: NavHostController) {
     var tabIndex by remember { mutableStateOf(0) }
     val tabData = listOf(
         "Home" to Icons.Filled.Home,
         "Locais" to Icons.Filled.Place,
-        "Categorias" to Icons.Filled.List
+        "Categorias" to Icons.Filled.List,
+        "Produtos" to Icons.Filled.Add
     )
 
     Scaffold(
@@ -93,8 +100,9 @@ fun IconTab(navHostController: NavHostController) {
                 }
                 when(tabIndex){
                     0 -> TelaInicial(navHostController = navHostController)
-                    1 -> ListagemLocaisScreen(navController = navHostController)
-                    2 -> ListagemCategoriasScreen(navController = navHostController)
+                    1 -> TelaCadastroLocalScreen(navController = navHostController)
+                    2 -> TelaCadastroCategoriaScreen(navController = navHostController)
+                    3 -> TelaCadastroProdutoScreen(navController = navHostController)
                 }
             }
         },

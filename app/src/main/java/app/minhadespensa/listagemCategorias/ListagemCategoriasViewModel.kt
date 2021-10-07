@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ListagemCategoriasViewModel @Inject constructor(private val dao: CategoriasRepository) : ViewModel(){
+class ListagemCategoriasViewModel @Inject constructor(val dao: CategoriasRepository) : ViewModel(){
 
     val categorias : LiveData<List<Categoria>> = dao.findAll().asLiveData()
 

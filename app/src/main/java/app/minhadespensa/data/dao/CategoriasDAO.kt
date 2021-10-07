@@ -10,7 +10,7 @@ interface CategoriasDAO {
     @Query("SELECT * FROM categorias order by nome")
     fun findAll() : Flow<List<Categoria>>
 
-    @Query("SELECT * FROM categorias WHERE id = :id")
+    @Query("SELECT * FROM categorias WHERE categoriaId = :id")
     fun getOne(id: Int): Categoria
 
     @Query("SELECT * FROM categorias WHERE nome like '%' || :nome || '%' ")

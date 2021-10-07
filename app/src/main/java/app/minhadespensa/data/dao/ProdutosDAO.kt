@@ -8,23 +8,28 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ProdutosDAO {
 
+    @Transaction
     @Query("SELECT * FROM produtos order by nome")
     fun findAll() : Flow<List<ProdutoDTO>>
 
-    @Query("SELECT * FROM produtos WHERE id = :id")
+    @Transaction
+    @Query("SELECT * FROM produtos WHERE produtoId = :id")
     fun getOne(id: Int): ProdutoDTO
 
+    @Transaction
     @Query("SELECT * FROM produtos WHERE nome like '%' || :nome || '%' ")
     fun search(nome: String): Flow<List<ProdutoDTO>>
 
-    @Query("SELECT * FROM produtos p JOIN categorias c ON c.id = p.categoriaId WHERE c.id = :id order by nome")
+    @Transaction
+    @Query("SELECT * FROM produtos p JOIN categorias c ON c.categoriaId = p.categoriaId WHERE c.categoriaId = :id order by nome")
     fun searchByCategoria(id: Int) : Flow<List<ProdutoDTO>>
 
-    @Query("SELECT * FROM produtos p JOIN produto_local_quantidade l ON l.localId = p.id WHERE l.localId = :id order by nome")
+    @Transaction
+    @Query("SELECT * FROM produtos p JOIN produto_local_quantidade l ON l.localId = p.produtoId WHERE l.localId = :id order by nome")
     fun searchByLocal(id: Int) : Flow<List<ProdutoDTO>>
 
     @Insert
-    suspend fun insert(produto: Produto)
+    suspend fun insert(produto: Produto) : Long
 
     @Update
     suspend fun update(produto: Produto)

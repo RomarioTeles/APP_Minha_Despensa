@@ -1,14 +1,16 @@
 package app.minhadespensa.data.repositories
 
+import android.util.Log
 import app.minhadespensa.data.database.AppDB
 import app.minhadespensa.data.dto.ProdutoDTO
 import app.minhadespensa.data.entities.Produto
+import app.minhadespensa.data.entities.ProdutoLocalQuantidade
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @ViewModelScoped
-class ProdutosRepository @Inject constructor(appDB: AppDB) {
+class ProdutosRepository @Inject constructor(appDB: AppDB, val plqRepository: ProdutoLocalQuantidadeRepository) {
 
     private val dao = appDB.produtosDAO()
 
@@ -35,7 +37,17 @@ class ProdutosRepository @Inject constructor(appDB: AppDB) {
     }
 
     suspend fun insert(produto: Produto) {
-        dao.insert(produto)
+
+        val locais = produto.locais.toTypedArray()
+
+        val produtoId = dao.insert(produto)
+
+        Log.d("Insert Produto", "Produto inserido: $produtoId")
+
+        plqRepository.insert(*locais)
+
+        Log.d("Insert Produto", "Produto inserido aos locais")
+
     }
 
     suspend fun update(produto: Produto) {
