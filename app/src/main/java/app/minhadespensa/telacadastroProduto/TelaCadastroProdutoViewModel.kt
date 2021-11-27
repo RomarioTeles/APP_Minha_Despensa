@@ -37,7 +37,7 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
 
     val isCadastrado: MutableLiveData<Boolean> = MutableLiveData(false)
 
-    val produtoLocais : MutableLiveData<MutableList<ProdutoLocalQuantidade>> = MutableLiveData(mutableListOf())
+    val produtoLocais = mutableStateOf(mutableListOf<ProdutoLocalQuantidade>())
 
     init{
 
@@ -67,7 +67,7 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
                     quantidade = quantidade.value,
                     status = statusProduto.value
                 )
-                lista.value!!.add(produtoLocalQuantidade)
+                produtoLocais.value.add(produtoLocalQuantidade)
             }else {
                 produtoLocalQuantidade.quantidade = quantidade.value
                 produtoLocalQuantidade.status = statusProduto.value
@@ -75,6 +75,7 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
 
             quantidade.value = 1
             statusProduto.value = EnumStatus.FECHADO
+            localId.value = 0
         }
     }
 
@@ -168,8 +169,8 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
         statusProduto.value = newValue
     }
 
-    fun getLocaisSelecionados(): List<Local>{
-        return produtoLocais.value!!.map {
+    fun getLocaisSelecionados(produtoLocais: MutableList<ProdutoLocalQuantidade>): List<Local>{
+        return produtoLocais!!.map {
             locais.find { l -> l.localId == it.localId }!!
         }
     }

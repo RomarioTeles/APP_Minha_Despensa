@@ -19,8 +19,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -73,12 +75,14 @@ fun MainContent(
 
     val isCadastrado = viewModel.isCadastrado.observeAsState()
 
+    val produtoLocais = viewModel.produtoLocais.value
+
     val categoriaExpanded = remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
 
     if (isCadastrado.value == true) {
-        navController.popBackStack()
+        navController.navigate("TelaListagemProdutos")
     }
 
     Column(
@@ -125,7 +129,7 @@ fun MainContent(
 
         Spacer(modifier = Modifier.padding(8.dp))
 
-        LocaisPills(list = viewModel.getLocaisSelecionados(), onClick = {
+        LocaisPills(list = viewModel.getLocaisSelecionados(produtoLocais), onClick = {
             scope.launch {
                 if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                     bottomSheetScaffoldState.bottomSheetState.expand()
@@ -250,7 +254,7 @@ fun Content(
 @Composable
 fun LocaisPills(list: List<Local>, onClick: () -> Unit) {
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.Start) {
         Row {
             Text(text = "Localização", fontSize = 20.sp)
             IconButton(onClick) {
@@ -261,15 +265,17 @@ fun LocaisPills(list: List<Local>, onClick: () -> Unit) {
         LazyRow {
             itemsIndexed(list) { index, it ->
                 Box(modifier = Modifier
-                    .padding(8.dp)
-                    .background(Color.LightGray)
-                    .clip(RoundedCornerShape(10.dp))
+                    .padding(4.dp)
+                    .background(Color.Transparent)
+                    .clipToBounds()
+                    .border(2.dp, colorResource(id = R.color.teal_200), RoundedCornerShape(5.dp))
                     .clickable(
                         onClick = { }
                     )) {
                     Text(
+                        modifier = Modifier.padding(8.dp),
                         text = it.nome,
-                        color = Color.White,
+                        color = colorResource(id = R.color.teal_200),
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold

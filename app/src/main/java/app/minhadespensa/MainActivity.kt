@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import app.minhadespensa.data.entities.Local
 import app.minhadespensa.listagemCategorias.ListagemCategoriasScreen
 import app.minhadespensa.listagemLocais.ListagemLocaisScreen
+import app.minhadespensa.listagemProdutos.ListagemProdutosScreen
 import app.minhadespensa.telacadastroCategoria.TelaCadastroCategoriaScreen
 import app.minhadespensa.telacadastroProduto.TelaCadastroProdutoScreen
 import app.minhadespensa.telacadastrolocal.TelaCadastroLocalScreen
@@ -25,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @ExperimentalComposeUiApi
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +54,9 @@ class MainActivity : ComponentActivity() {
                     composable("TelaCadastroProduto"){
                         TelaCadastroProdutoScreen(navController = navController)
                     }
-
+                    composable("TelaListagemProdutos"){
+                        ListagemProdutosScreen(navController = navController)
+                    }
                     /*composable("TelaDetalhesLocal"){
                         val cidade = navController.previousBackStackEntry!!.arguments!!.getParcelable<Local>("local")
                         cidade?.let{
@@ -73,6 +78,7 @@ fun TelaInicial(navHostController: NavHostController) {
 
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
 fun IconTab(navHostController: NavHostController) {
