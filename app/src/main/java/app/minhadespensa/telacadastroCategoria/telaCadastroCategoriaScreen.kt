@@ -30,7 +30,7 @@ fun TelaCadastroCategoriaScreen(viewModel: TelaCadastroLocalViewModel = hiltView
     val status = viewModel.status.observeAsState()
 
     if(status.value == true){
-        navController.popBackStack()
+        navController.navigate("TelaListagemCategorias")
     }
 
     ConstraintLayout(

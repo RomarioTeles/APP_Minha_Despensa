@@ -1,4 +1,4 @@
-package app.minhadespensa.listagemProdutos
+package app.minhadespensa.listagemLocais
 
 import android.os.Bundle
 import androidx.compose.foundation.Image
@@ -21,36 +21,38 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import app.minhadespensa.R
-import app.minhadespensa.data.entities.Local
+import app.minhadespensa.data.dto.ProdutosWithLocais
 
 @Composable
-fun ListagemProdutosScreen(viewModel: ListagemProdutosViewModel = hiltViewModel(), navController: NavController) {
+fun ListagemProdutosLocalScreen(localId: Int, viewModel: ListagemProdutosLocalViewModel = hiltViewModel(), navController: NavController) {
 
-    val locais = viewModel.localprodutos.observeAsState(listOf())
+    viewModel.getProdutos(localId)
+
+    val produtos = viewModel.localprodutos.observeAsState(listOf())
 
     LazyColumn(){
-        itemsIndexed(locais.value){
-                index, local -> meuCard(local = local.local, navController = navController)
+        itemsIndexed(produtos.value){
+                index, produto -> meuCard(produto = produto, navController = navController)
         }
     }
 
 }
 
 @Composable
-fun meuCard(local: Local, navController: NavController){
+fun meuCard(produto: ProdutosWithLocais, navController: NavController){
 
     Card(
         modifier = Modifier
             .padding(5.dp)
-            .height(60.dp)
+            .height(120.dp)
             .fillMaxWidth()
             .clickable {
                 navController.currentBackStackEntry!!.arguments =
                     Bundle().apply {
-                        putParcelable("local", local)
+                        putParcelable("produto", produto.produto)
                     }
 
-                navController.navigate("TelaDetalhesLocal")
+                navController.navigate("TelaCadastroProduto")
             },
         elevation = 4.dp,
     ) {
@@ -58,22 +60,40 @@ fun meuCard(local: Local, navController: NavController){
         ConstraintLayout(
 
         ) {
-            val ( text, image )= createRefs()
+            val ( nomeLocal, quantidade, status, image )= createRefs()
 
             Image(
-                painterResource(id = R.drawable.file_cabinet), contentDescription = local.nome,
+                painterResource(id = R.drawable.file_cabinet), contentDescription = produto.produto.nome,
                 modifier = Modifier
                     .constrainAs(image){
                         top.linkTo(parent.top, 16.dp)
                         start.linkTo(parent.start, 16.dp)
                     }
-                    .height(24.dp)
-                    .width(24.dp))
+                    .height(48.dp)
+                    .width(48.dp))
 
-            Text(text = local.nome,
+            Text(text = produto.produto.nome,
                 modifier = Modifier
-                    .constrainAs(text) {
+                    .constrainAs(nomeLocal) {
                         top.linkTo(parent.top, 16.dp)
+                        start.linkTo(image.end, 16.dp)
+                    },
+                textAlign = TextAlign.Center
+            )
+
+            Text(text = "${produto.quantidade} itens ",
+                modifier = Modifier
+                    .constrainAs(quantidade) {
+                        top.linkTo(nomeLocal.bottom, 8.dp)
+                        start.linkTo(image.end, 16.dp)
+                    },
+                textAlign = TextAlign.Center
+            )
+
+            Text(text = "${produto.status.capitalizedName()}",
+                modifier = Modifier
+                    .constrainAs(status) {
+                        top.linkTo(quantidade.bottom, 8.dp)
                         start.linkTo(image.end, 16.dp)
                     },
                 textAlign = TextAlign.Center

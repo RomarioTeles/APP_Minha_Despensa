@@ -24,10 +24,6 @@ interface ProdutosDAO {
     @Query("SELECT * FROM produtos p JOIN categorias c ON c.categoriaId = p.categoriaId WHERE c.categoriaId = :id order by nome")
     fun searchByCategoria(id: Int) : Flow<List<ProdutoDTO>>
 
-    @Transaction
-    @Query("SELECT * FROM produtos p JOIN produto_local_quantidade l ON l.localId = p.produtoId WHERE l.localId = :id order by nome")
-    fun searchByLocal(id: Int) : Flow<List<ProdutoDTO>>
-
     @Insert
     suspend fun insert(produto: Produto) : Long
 

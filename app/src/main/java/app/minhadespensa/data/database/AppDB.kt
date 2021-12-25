@@ -18,7 +18,7 @@ import app.minhadespensa.data.entities.ProdutoLocalQuantidade
         Local::class,
         ProdutoLocalQuantidade::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDB : RoomDatabase() {

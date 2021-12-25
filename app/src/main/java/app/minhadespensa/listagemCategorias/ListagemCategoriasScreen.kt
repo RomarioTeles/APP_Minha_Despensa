@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,11 +31,24 @@ fun ListagemCategoriasScreen(viewModel: ListagemCategoriasViewModel = hiltViewMo
 
     val categorias = viewModel.categorias.observeAsState(listOf())
 
-    LazyColumn(){
-        itemsIndexed(categorias.value){
-                index, categoria -> meuCard(categoria = categoria, navController = navController)
-        }
-    }
+    Scaffold(floatingActionButton = {
+        FloatingActionButton(
+            onClick = {
+                navController.navigate("TelaCadastroCategoria")
+            },
+            backgroundColor = Color.Red,
+            content = {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+            }
+        )
+    },
+        content = {
+            LazyColumn(){
+                itemsIndexed(categorias.value){
+                        index, categoria -> meuCard(categoria = categoria, navController = navController)
+                }
+            }
+        })
 
 }
 

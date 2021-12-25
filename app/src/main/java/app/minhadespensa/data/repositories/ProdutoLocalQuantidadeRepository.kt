@@ -19,6 +19,10 @@ class ProdutoLocalQuantidadeRepository @Inject constructor(appDB: AppDB){
         return dao.findAll()
     }
 
+    fun findByLocalId(localId: Int): Flow<List<ProdutosWithLocais>> {
+        return dao.findByLocalId(localId)
+    }
+
     fun pesquisarProduto(search: String): Flow<List<ProdutosWithLocais>>{
         return dao.pesquisarProduto(search)
     }
@@ -55,5 +59,12 @@ class ProdutoLocalQuantidadeRepository @Inject constructor(appDB: AppDB){
         dao.delete(produtoLocalQuantidade)
     }
 
+    fun findByProdutoId(produtoId: Int): Flow<List<LocalWithProdutos>> {
+        return dao.findByProdutoId(produtoId)
+    }
+
+    fun deleteAllByProdutoId(produtoId: Int){
+        dao.deleteAllByProdutoId(produtoId)
+    }
 
 }

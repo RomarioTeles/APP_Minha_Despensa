@@ -23,10 +23,21 @@ interface ProdutoLocalQuantidadeDAO {
     suspend fun delete(produtoLocalQuantidade: ProdutoLocalQuantidade)
 
     @Transaction
-    @Query("SELECT *, c.nome as nomeCategoria FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId JOIN categorias c ON c.categoriaId = p.categoriaId")
+    @Query("""SELECT * FROM produto_local_quantidade pl JOIN locais l ON l.localId = pl.localId""")
     fun findAll(): Flow<List<LocalWithProdutos>>
+
+    @Transaction
+    @Query("""SELECT * FROM produto_local_quantidade pl JOIN locais l ON l.localId = pl.localId WHERE pl.produtoId = :produtoId""")
+    fun findByProdutoId(produtoId: Int): Flow<List<LocalWithProdutos>>
+
+    @Transaction
+    @Query("""SELECT * FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId Where localId = :localId""")
+    fun findByLocalId(localId: Int): Flow<List<ProdutosWithLocais>>
 
     @Transaction
     @Query("SELECT * FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId WHERE p.codigo like '%' || :search || '%' or p.nome  like '%' || :search || '%'")
     fun pesquisarProduto(search: String): Flow<List<ProdutosWithLocais>>
+
+    @Query("DELETE FROM produto_local_quantidade WHERE produtoId = :produtoId")
+    fun deleteAllByProdutoId(produtoId: Int)
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,10 +16,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import app.minhadespensa.data.entities.Local
+import app.minhadespensa.data.entities.Produto
 import app.minhadespensa.listagemCategorias.ListagemCategoriasScreen
 import app.minhadespensa.listagemLocais.ListagemLocaisScreen
-import app.minhadespensa.listagemProdutos.ListagemProdutosScreen
+import app.minhadespensa.listagemLocais.ListagemProdutosLocalScreen
 import app.minhadespensa.telacadastroCategoria.TelaCadastroCategoriaScreen
 import app.minhadespensa.telacadastroProduto.TelaCadastroProdutoScreen
 import app.minhadespensa.telacadastrolocal.TelaCadastroLocalScreen
@@ -40,29 +41,51 @@ class MainActivity : ComponentActivity() {
                         IconTab(navHostController = navController)
                     }
                     composable("TelaCadastroLocal"){
-                        TelaCadastroLocalScreen(navController = navController)
+
+                        ContentWrapper(){
+                            TelaCadastroLocalScreen(navController = navController)
+                        }
+
                     }
                     composable("TelaCadastroCategoria"){
-                        TelaCadastroCategoriaScreen(navController = navController)
+                        ContentWrapper() {
+                            TelaCadastroCategoriaScreen(navController = navController)
+                        }
                     }
                     composable("TelaListagemLocal"){
-                        ListagemLocaisScreen(navController = navController)
-                    }
-                    composable("TelaListagemCategoria"){
-                        ListagemLocaisScreen(navController = navController)
+                        ContentWrapper() {
+                            ListagemLocaisScreen(navController = navController)
+                        }
                     }
                     composable("TelaCadastroProduto"){
-                        TelaCadastroProdutoScreen(navController = navController)
+                        val produto = navController.previousBackStackEntry!!.arguments!!.getParcelable<Produto>("produto")
+                        produto?.let{
+                            ContentWrapper() {
+                                TelaCadastroProdutoScreen(navController = navController, produto = produto)
+                            }
+                        }
                     }
                     composable("TelaListagemProdutos"){
-                        ListagemProdutosScreen(navController = navController)
-                    }
-                    /*composable("TelaDetalhesLocal"){
-                        val cidade = navController.previousBackStackEntry!!.arguments!!.getParcelable<Local>("local")
-                        cidade?.let{
-                            TelaDetalhesScreen(navController = navController, cidade = it)
+                        ContentWrapper() {
+                            ListagemLocaisScreen(navController = navController)
                         }
-                    }*/
+                    }
+                    composable("TelaListagemCategorias"){
+                        ContentWrapper() {
+                            ListagemCategoriasScreen(navController = navController)
+                        }
+                    }
+                    composable("TelaListagemProdutosLocal"){
+                        val localId = navController.previousBackStackEntry!!.arguments!!.getInt("localId")
+                        localId?.let{
+                            ContentWrapper() {
+                                ListagemProdutosLocalScreen(
+                                    navController = navController,
+                                    localId = it
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -70,11 +93,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TelaInicial(navHostController: NavHostController) {
+fun ContentWrapper(modifier: Modifier = Modifier, content: @Composable() () -> Unit) {
     
-    Column() {
-        
-    }
+    Scaffold(topBar = {
+        TopAppBar(title = { Text(text = "Minha Despensa") })
+    },
+    content = {
+        Row {
+            content()
+        }
+    })
 
 }
 
@@ -84,7 +112,6 @@ fun TelaInicial(navHostController: NavHostController) {
 fun IconTab(navHostController: NavHostController) {
     var tabIndex by remember { mutableStateOf(0) }
     val tabData = listOf(
-        "Home" to Icons.Filled.Home,
         "Locais" to Icons.Filled.Place,
         "Categorias" to Icons.Filled.List,
         "Produtos" to Icons.Filled.Add
@@ -105,10 +132,9 @@ fun IconTab(navHostController: NavHostController) {
                     }
                 }
                 when(tabIndex){
-                    0 -> TelaInicial(navHostController = navHostController)
-                    1 -> TelaCadastroLocalScreen(navController = navHostController)
-                    2 -> TelaCadastroCategoriaScreen(navController = navHostController)
-                    3 -> TelaCadastroProdutoScreen(navController = navHostController)
+                    0 -> ListagemLocaisScreen(navController = navHostController)
+                    1 -> ListagemCategoriasScreen(navController = navHostController)
+                    2 -> TelaCadastroProdutoScreen(navController = navHostController)
                 }
             }
         },

@@ -17,19 +17,21 @@ import javax.inject.Inject
 @HiltViewModel
 class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: ProdutosRepository, val categoriasRepository: CategoriasRepository, val locaisRepository: LocaisRepository) : ViewModel(){
 
+    val produtoId = mutableStateOf(0)
+
     val nomeProduto = mutableStateOf("")
 
     val codigoProduto = mutableStateOf("")
 
-    val localId = mutableStateOf(0)
-
     val categoriaId = mutableStateOf(0)
-
-    val quantidade = mutableStateOf(0)
 
     val listaStatus = EnumStatus.values()
 
+    val localId = mutableStateOf(0)
+
     val statusProduto = mutableStateOf(EnumStatus.FECHADO)
+
+    val quantidade = mutableStateOf(0)
 
     var categorias = mutableListOf<Categoria>()
 
@@ -62,7 +64,7 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
             if(produtoLocalQuantidade == null) {
 
                 produtoLocalQuantidade = ProdutoLocalQuantidade(
-                    produtoId = localId.value,
+                    produtoId = produtoId.value,
                     localId = localId.value,
                     quantidade = quantidade.value,
                     status = statusProduto.value
@@ -72,6 +74,8 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
                 produtoLocalQuantidade.quantidade = quantidade.value
                 produtoLocalQuantidade.status = statusProduto.value
             }
+
+            produtoLocalQuantidade.localNome = getNomeLocalById(localId.value)
 
             quantidade.value = 1
             statusProduto.value = EnumStatus.FECHADO
@@ -84,6 +88,7 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
         CoroutineScope(Dispatchers.IO).launch {
 
             val produto = Produto(
+                produtoId = produtoId.value,
                 nome = nomeProduto.value,
                 codigo = codigoProduto.value,
                 categoriaId = categoriaId.value
@@ -117,6 +122,10 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
         newValue.let {
             localId.value = it.localId!!
         }
+    }
+
+    fun onChangeLocal(id: Int){
+        localId.value = id
     }
 
     fun onChangeQuantidade(newValue: String){
@@ -172,6 +181,30 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
     fun getLocaisSelecionados(produtoLocais: MutableList<ProdutoLocalQuantidade>): List<Local>{
         return produtoLocais!!.map {
             locais.find { l -> l.localId == it.localId }!!
+        }
+    }
+
+    fun set(produto: Produto?) {
+        if(produto != null && produtoLocais.value.isEmpty()){
+            codigoProduto.value = produto.codigo!!
+            nomeProduto.value = produto.nome
+            categoriaId.value = produto.categoriaId
+            produtoId.value = produto.produtoId
+
+            viewModelScope.launch {
+                produtosRepository.findLocaisByProdutoId(produto.produtoId).collect{
+                    produtoLocais.value = it.map { lwp ->
+                            var aux = ProdutoLocalQuantidade(
+                                produtoId = produto.produtoId,
+                                localId = lwp.local.localId!!,
+                                quantidade = lwp.quantidade,
+                                status = lwp.status,
+                            )
+                            aux.localNome = lwp.local.nome
+                            aux
+                    }.toMutableList()
+                }
+            }
         }
     }
 

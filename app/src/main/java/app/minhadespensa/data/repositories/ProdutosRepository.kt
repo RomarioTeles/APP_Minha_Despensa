@@ -2,7 +2,9 @@ package app.minhadespensa.data.repositories
 
 import android.util.Log
 import app.minhadespensa.data.database.AppDB
+import app.minhadespensa.data.dto.LocalWithProdutos
 import app.minhadespensa.data.dto.ProdutoDTO
+import app.minhadespensa.data.dto.ProdutosWithLocais
 import app.minhadespensa.data.entities.Produto
 import app.minhadespensa.data.entities.ProdutoLocalQuantidade
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -28,25 +30,23 @@ class ProdutosRepository @Inject constructor(appDB: AppDB, val plqRepository: Pr
         return dao.search(nome)
     }
 
-    fun searchByCategoria(id: Int): Flow<List<ProdutoDTO>> {
-        return dao.searchByCategoria(id)
-    }
-
-    fun searchByLocal(id: Int): Flow<List<ProdutoDTO>> {
-        return dao.searchByLocal(id)
+    fun findLocaisByProdutoId(produtoId: Int): Flow<List<LocalWithProdutos>>{
+        return plqRepository.findByProdutoId(produtoId)
     }
 
     suspend fun insert(produto: Produto) {
 
         val locais = produto.locais.toTypedArray()
 
-        val produtoId = dao.insert(produto)
-
-        Log.d("Insert Produto", "Produto inserido: $produtoId")
+        if(produto.produtoId.equals(0)){
+            val produtoId = dao.insert(produto)
+            locais.forEach { it.produtoId = produtoId.toInt() }
+        }else{
+            plqRepository.deleteAllByProdutoId(produto.produtoId)
+            dao.update(produto)
+        }
 
         plqRepository.insert(*locais)
-
-        Log.d("Insert Produto", "Produto inserido aos locais")
 
     }
 

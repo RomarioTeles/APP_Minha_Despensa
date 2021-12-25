@@ -1,14 +1,9 @@
 package app.minhadespensa.telacadastroProduto
 
-import android.view.Gravity
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -21,25 +16,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import app.minhadespensa.R
 import app.minhadespensa.data.entities.EnumStatus
 import app.minhadespensa.data.entities.Local
+import app.minhadespensa.data.entities.Produto
+import app.minhadespensa.data.entities.ProdutoLocalQuantidade
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
 fun TelaCadastroProdutoScreen(
+    produto: Produto?=null,
     navController: NavController
 ) {
 
@@ -50,6 +46,7 @@ fun TelaCadastroProdutoScreen(
     )
 
     Content(
+        produto = produto,
         navController = navController,
         coroutineScope = coroutineScope,
         scaffoldState = bottomSheetScaffoldState
@@ -129,13 +126,20 @@ fun MainContent(
 
         Spacer(modifier = Modifier.padding(8.dp))
 
-        LocaisPills(list = viewModel.getLocaisSelecionados(produtoLocais), onClick = {
+        LocaisPills(list = produtoLocais, onAddClick = {
             scope.launch {
                 if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                     bottomSheetScaffoldState.bottomSheetState.expand()
                 } else {
                     bottomSheetScaffoldState.bottomSheetState.collapse()
                 }
+            }
+        }, onItemSelected = {
+            viewModel.onChangeLocal(it.localId)
+            viewModel.onChangeQuantidade(it.quantidade.toString())
+            viewModel.onChangeStatusProduto(it.status)
+            scope.launch {
+                bottomSheetScaffoldState.bottomSheetState.expand()
             }
         })
 
@@ -158,11 +162,14 @@ fun MainContent(
 @ExperimentalMaterialApi
 @Composable
 fun Content(
+    produto: Produto?,
     scaffoldState : BottomSheetScaffoldState,
     coroutineScope : CoroutineScope,
     viewModel: TelaCadastroProdutoViewModel = hiltViewModel(),
     navController: NavController
 ) {
+
+    viewModel.set(produto)
 
     val quantidade = viewModel.quantidade.value
 
@@ -252,34 +259,78 @@ fun Content(
 }
 
 @Composable
-fun LocaisPills(list: List<Local>, onClick: () -> Unit) {
+fun LocaisPills(list: List<ProdutoLocalQuantidade>, onAddClick: () -> Unit, onItemSelected: (ProdutoLocalQuantidade) -> Unit) {
 
     Column(horizontalAlignment = Alignment.Start) {
-        Row {
-            Text(text = "Localização", fontSize = 20.sp)
-            IconButton(onClick) {
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+            Text( modifier = Modifier.weight(2.0f),
+                text = "Localização", fontSize = 20.sp)
+            IconButton(onAddClick,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .clipToBounds()
+                    .border(1.dp, colorResource(id = android.R.color.darker_gray), RoundedCornerShape(15.dp))
+            ) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Atribua um local")
             }
         }
 
-        LazyRow {
+        LazyRow(Modifier
+            .padding(4.dp)
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 100.dp)
+            .background(Color.Transparent)
+            .clipToBounds()
+            .border(2.dp, colorResource(id = android.R.color.darker_gray), RoundedCornerShape(20.dp))
+            ) {
             itemsIndexed(list) { index, it ->
                 Box(modifier = Modifier
                     .padding(4.dp)
                     .background(Color.Transparent)
                     .clipToBounds()
-                    .border(2.dp, colorResource(id = R.color.teal_200), RoundedCornerShape(5.dp))
+                    .border(2.dp, colorResource(id = android.R.color.darker_gray), RoundedCornerShape(5.dp))
                     .clickable(
-                        onClick = { }
+                        onClick = { onItemSelected(it) }
                     )) {
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = it.nome,
-                        color = colorResource(id = R.color.teal_200),
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold
-                    )
+                    ConstraintLayout(modifier = Modifier.padding(8.dp)){
+                        val (refNome, refQuant, refStatus) = createRefs()
+                        Text(
+                            modifier = Modifier.constrainAs(refNome){
+                              start.linkTo(parent.start)
+                              top.linkTo(parent.top)
+                            },
+                            text = "${it.localNome}",
+                            color = colorResource(id = android.R.color.darker_gray),
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            modifier = Modifier.constrainAs(refQuant){
+                                start.linkTo(parent.start)
+                                top.linkTo(refNome.bottom)
+                            },
+                            text = "${it.quantidade}",
+                            color = colorResource(id = android.R.color.darker_gray),
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            modifier = Modifier.constrainAs(refStatus){
+                                start.linkTo(parent.start)
+                                top.linkTo(refQuant.bottom)
+                            },
+                            text = "${it.status}",
+                            color = colorResource(id = android.R.color.darker_gray),
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
                 }
             }
         }
