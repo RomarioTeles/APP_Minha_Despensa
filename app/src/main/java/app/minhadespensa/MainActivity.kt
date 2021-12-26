@@ -20,6 +20,7 @@ import app.minhadespensa.data.entities.Produto
 import app.minhadespensa.listagemCategorias.ListagemCategoriasScreen
 import app.minhadespensa.listagemLocais.ListagemLocaisScreen
 import app.minhadespensa.listagemLocais.ListagemProdutosLocalScreen
+import app.minhadespensa.pesquisarProduto.PesquisarProdutoScreen
 import app.minhadespensa.telacadastroCategoria.TelaCadastroCategoriaScreen
 import app.minhadespensa.telacadastroProduto.TelaCadastroProdutoScreen
 import app.minhadespensa.telacadastrolocal.TelaCadastroLocalScreen
@@ -58,11 +59,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable("TelaCadastroProduto"){
-                        val produto = navController.previousBackStackEntry!!.arguments!!.getParcelable<Produto>("produto")
-                        produto?.let{
-                            ContentWrapper() {
-                                TelaCadastroProdutoScreen(navController = navController, produto = produto)
-                            }
+                        val produto = navController.previousBackStackEntry!!.arguments?.getParcelable<Produto>("produto")
+                        ContentWrapper() {
+                            TelaCadastroProdutoScreen(navController = navController, produto = produto)
                         }
                     }
                     composable("TelaListagemProdutos"){
@@ -134,7 +133,7 @@ fun IconTab(navHostController: NavHostController) {
                 when(tabIndex){
                     0 -> ListagemLocaisScreen(navController = navHostController)
                     1 -> ListagemCategoriasScreen(navController = navHostController)
-                    2 -> TelaCadastroProdutoScreen(navController = navHostController)
+                    2 -> PesquisarProdutoScreen(navController = navHostController)
                 }
             }
         },

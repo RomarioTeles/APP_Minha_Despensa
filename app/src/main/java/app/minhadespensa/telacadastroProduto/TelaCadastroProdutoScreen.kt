@@ -234,17 +234,32 @@ fun Content(
 
                     Spacer(modifier = Modifier.padding(4.dp))
 
-                    Button(
-                        onClick = {
-                            viewModel.addlocal()
-                            coroutineScope.launch {
-                                scaffoldState.bottomSheetState.collapse()
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text(text = "Adicionar Local")
+                    Row {
+                        Button(
+                            onClick = {
+                                viewModel.removeLocal()
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.collapse()
+                                }
+                            },
+                            modifier = Modifier.weight(1.0f)
+                        ) {
+                            Text(text = "Remover Local")
+                        }
+
+                        Spacer(modifier = Modifier.padding(8.dp))
+
+                        Button(
+                            onClick = {
+                                viewModel.addlocal()
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.collapse()
+                                }
+                            },
+                            modifier = Modifier.weight(1.0f)
+                        ) {
+                            Text(text = "Adicionar Local")
+                        }
                     }
 
                     Spacer(modifier = Modifier.padding(8.dp))

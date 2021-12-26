@@ -2,6 +2,7 @@ package app.minhadespensa.data.repositories
 
 import app.minhadespensa.data.database.AppDB
 import app.minhadespensa.data.dto.LocalWithProdutos
+import app.minhadespensa.data.dto.ProdutoQuantidade
 import app.minhadespensa.data.dto.ProdutosWithLocais
 import app.minhadespensa.data.entities.Local
 import app.minhadespensa.data.entities.Produto
@@ -23,7 +24,7 @@ class ProdutoLocalQuantidadeRepository @Inject constructor(appDB: AppDB){
         return dao.findByLocalId(localId)
     }
 
-    fun pesquisarProduto(search: String): Flow<List<ProdutosWithLocais>>{
+    fun pesquisarProduto(search: String): Flow<List<ProdutoQuantidade>>{
         return dao.pesquisarProduto(search)
     }
 

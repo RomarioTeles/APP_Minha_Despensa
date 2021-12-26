@@ -55,6 +55,18 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
         }
     }
 
+    fun removeLocal() {
+        produtoLocais?.let{ lista ->
+            var produtoLocalQuantidade = lista.value.find { it.localId == localId.value }
+            if(produtoLocalQuantidade != null) {
+                produtoLocais.value.remove(produtoLocalQuantidade)
+                quantidade.value = 1
+                statusProduto.value = EnumStatus.FECHADO
+                localId.value = 0
+            }
+        }
+    }
+
     fun addlocal(){
 
         produtoLocais?.let { lista ->
@@ -207,5 +219,7 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
             }
         }
     }
+
+
 
 }
