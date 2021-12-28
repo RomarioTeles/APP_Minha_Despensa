@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,6 +41,10 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
     val isCadastrado: MutableLiveData<Boolean> = MutableLiveData(false)
 
     val produtoLocais = mutableStateOf(mutableListOf<ProdutoLocalQuantidade>())
+
+    var deleteDate : Date? = null
+
+    val hasDeleteDate = mutableStateOf(false)
 
     init{
 
@@ -202,6 +207,8 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
             nomeProduto.value = produto.nome
             categoriaId.value = produto.categoriaId
             produtoId.value = produto.produtoId
+            deleteDate = produto.deleteDate
+            hasDeleteDate.value = deleteDate != null
 
             viewModelScope.launch {
                 produtosRepository.findLocaisByProdutoId(produto.produtoId).collect{
@@ -220,6 +227,19 @@ class TelaCadastroProdutoViewModel @Inject constructor(val produtosRepository: P
         }
     }
 
+    fun remover() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                produtosRepository.ativarOrDesativar(produtoId.value)
+            }
+        }
+        deleteDate = if(hasDeleteDate.value) null else Date()
+        hasDeleteDate.value = deleteDate != null
+    }
+
+    fun isVisible(): Boolean {
+        return produtoId.value != 0
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package app.minhadespensa.data.repositories
 
 import app.minhadespensa.data.database.AppDB
+import app.minhadespensa.data.dto.LocalDTO
 import app.minhadespensa.data.dto.LocalWithProdutos
 import app.minhadespensa.data.dto.ProdutoQuantidade
 import app.minhadespensa.data.dto.ProdutosWithLocais
@@ -16,7 +17,7 @@ class ProdutoLocalQuantidadeRepository @Inject constructor(appDB: AppDB){
     
     private val dao = appDB.produtosLocalQuantidadeDAO()
 
-    fun findAll(): Flow<List<LocalWithProdutos>>{
+    fun findAll(): Flow<List<LocalDTO>>{
         return dao.findAll()
     }
 

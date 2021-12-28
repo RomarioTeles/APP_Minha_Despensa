@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -74,6 +75,8 @@ fun MainContent(
 
     val produtoLocais = viewModel.produtoLocais.value
 
+    val hasDeleteDate = viewModel.hasDeleteDate.value
+
     val categoriaExpanded = remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
@@ -82,18 +85,28 @@ fun MainContent(
         navController.navigate("TelaListagemProdutos")
     }
 
-    Column(
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxHeight()
             .padding(16.dp)
             .verticalScroll(scrollState)
     ) {
 
-        Text(text = "Informações do Produto", fontSize = 20.sp)
+        val (refTextInfo, refInputCodigo, refInputNome, refBoxCat, refSave, refDelete ) = createRefs()
+
+        Text(text = "Informações do Produto", fontSize = 20.sp,
+            modifier = Modifier.constrainAs(refTextInfo){
+                start.linkTo(parent.start)
+                top.linkTo(parent.top)
+            })
 
         OutlinedTextField(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .constrainAs(refInputCodigo) {
+                    start.linkTo(parent.start)
+                    top.linkTo(refTextInfo.bottom, 8.dp)
+                },
             label = { Text(text = "Informe o código do produto") },
             value = codigo,
             onValueChange = {
@@ -101,11 +114,13 @@ fun MainContent(
             }
         )
 
-        Spacer(modifier = Modifier.padding(8.dp))
-
         OutlinedTextField(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .constrainAs(refInputNome) {
+                    start.linkTo(parent.start)
+                    top.linkTo(refInputCodigo.bottom, 8.dp)
+                },
             label = { Text(text = "Informe o nome do produto") },
             value = nome,
             onValueChange = {
@@ -113,48 +128,66 @@ fun MainContent(
             }
         )
 
-        Spacer(modifier = Modifier.padding(8.dp))
+        Column(modifier = Modifier.constrainAs(refBoxCat){
+            start.linkTo(parent.start)
+            top.linkTo(refInputNome.bottom, 8.dp)
+        }) {
 
-        MyDropDownMenu(
-            label = "Categoria",
-            list = categorias.map { it.nome },
-            requestToOpen = categoriaExpanded.value,
-            request = { value -> categoriaExpanded.value = value },
-            selectedString = viewModel.getNomeCategoriaById(categoriaId) ?: "",
-            onSelect = { viewModel.setCategoriaByNome(it) }
-        )
+            MyDropDownMenu(
+                label = "Categoria",
+                list = categorias.map { it.nome },
+                requestToOpen = categoriaExpanded.value,
+                request = { value -> categoriaExpanded.value = value },
+                selectedString = viewModel.getNomeCategoriaById(categoriaId) ?: "",
+                onSelect = { viewModel.setCategoriaByNome(it) }
+            )
 
-        Spacer(modifier = Modifier.padding(8.dp))
-
-        LocaisPills(list = produtoLocais, onAddClick = {
-            scope.launch {
-                if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
-                    bottomSheetScaffoldState.bottomSheetState.expand()
-                } else {
-                    bottomSheetScaffoldState.bottomSheetState.collapse()
+            LocaisPills(list = produtoLocais, onAddClick = {
+                scope.launch {
+                    if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                        bottomSheetScaffoldState.bottomSheetState.expand()
+                    } else {
+                        bottomSheetScaffoldState.bottomSheetState.collapse()
+                    }
                 }
-            }
-        }, onItemSelected = {
-            viewModel.onChangeLocal(it.localId)
-            viewModel.onChangeQuantidade(it.quantidade.toString())
-            viewModel.onChangeStatusProduto(it.status)
-            scope.launch {
-                bottomSheetScaffoldState.bottomSheetState.expand()
-            }
-        })
+            }, onItemSelected = {
+                viewModel.onChangeLocal(it.localId)
+                viewModel.onChangeQuantidade(it.quantidade.toString())
+                viewModel.onChangeStatusProduto(it.status)
+                scope.launch {
+                    bottomSheetScaffoldState.bottomSheetState.expand()
+                }
+            })
+        }
 
-        Spacer(modifier = Modifier.padding(16.dp))
-
+        if(viewModel.isVisible()) {
+            Button(
+                onClick = { viewModel.remover() },
+                modifier = Modifier.fillMaxWidth(0.5f).padding(8.dp)
+                    .height(50.dp)
+                    .constrainAs(refDelete) {
+                        top.linkTo(refBoxCat.bottom, 16.dp)
+                    }
+            ) {
+                Text(text = if(hasDeleteDate) "Ativar" else "Inativar")
+            }
+        }
 
         Button(
-            onClick = { viewModel.cadastrar() },
-            modifier = Modifier
-                .fillMaxWidth()
+            onClick = {viewModel.cadastrar()},
+            modifier = Modifier.fillMaxWidth(0.5f).padding(8.dp)
                 .height(50.dp)
-
+                .constrainAs(refSave) {
+                    top.linkTo(refBoxCat.bottom, 16.dp)
+                    start.linkTo(refDelete.end)
+                }
         ) {
-            Text(text = "Cadastrar")
+            Text(text = "Gravar")
         }
+
+        createHorizontalChain(
+            refDelete, refSave, chainStyle = ChainStyle.Packed
+        )
 
     }
 }
@@ -284,26 +317,39 @@ fun LocaisPills(list: List<ProdutoLocalQuantidade>, onAddClick: () -> Unit, onIt
                 modifier = Modifier
                     .padding(4.dp)
                     .clipToBounds()
-                    .border(1.dp, colorResource(id = android.R.color.darker_gray), RoundedCornerShape(15.dp))
+                    .border(
+                        1.dp,
+                        colorResource(id = android.R.color.darker_gray),
+                        RoundedCornerShape(15.dp)
+                    )
             ) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Atribua um local")
             }
         }
 
-        LazyRow(Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 100.dp)
-            .background(Color.Transparent)
-            .clipToBounds()
-            .border(2.dp, colorResource(id = android.R.color.darker_gray), RoundedCornerShape(20.dp))
+        LazyRow(
+            Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 100.dp)
+                .background(Color.Transparent)
+                .clipToBounds()
+                .border(
+                    2.dp,
+                    colorResource(id = android.R.color.darker_gray),
+                    RoundedCornerShape(20.dp)
+                )
             ) {
             itemsIndexed(list) { index, it ->
                 Box(modifier = Modifier
                     .padding(4.dp)
                     .background(Color.Transparent)
                     .clipToBounds()
-                    .border(2.dp, colorResource(id = android.R.color.darker_gray), RoundedCornerShape(5.dp))
+                    .border(
+                        2.dp,
+                        colorResource(id = android.R.color.darker_gray),
+                        RoundedCornerShape(5.dp)
+                    )
                     .clickable(
                         onClick = { onItemSelected(it) }
                     )) {

@@ -2,14 +2,12 @@ package app.minhadespensa.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import app.minhadespensa.data.dao.CategoriasDAO
 import app.minhadespensa.data.dao.LocaisDAO
 import app.minhadespensa.data.dao.ProdutosDAO
 import app.minhadespensa.data.dao.ProdutoLocalQuantidadeDAO
-import app.minhadespensa.data.entities.Categoria
-import app.minhadespensa.data.entities.Local
-import app.minhadespensa.data.entities.Produto
-import app.minhadespensa.data.entities.ProdutoLocalQuantidade
+import app.minhadespensa.data.entities.*
 
 @Database(
     entities = [
@@ -18,9 +16,10 @@ import app.minhadespensa.data.entities.ProdutoLocalQuantidade
         Local::class,
         ProdutoLocalQuantidade::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDB : RoomDatabase() {
     abstract fun produtosDAO(): ProdutosDAO
     abstract fun categoriasDAO(): CategoriasDAO

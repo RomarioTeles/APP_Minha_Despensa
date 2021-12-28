@@ -20,6 +20,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import app.minhadespensa.R
+import app.minhadespensa.data.dto.LocalDTO
 import app.minhadespensa.data.dto.LocalWithProdutos
 
 @Composable
@@ -27,7 +28,7 @@ fun ListagemLocaisScreen(viewModel: ListagemLocaisViewModel = hiltViewModel(), n
 
     val locaisp = viewModel.localprodutos.observeAsState(listOf())
 
-    var locais = locaisp.value?.distinctBy { it.local }
+    var locais = locaisp.value?.distinctBy { it.localId }
 
     Scaffold(floatingActionButton = {
         FloatingActionButton(
@@ -51,7 +52,7 @@ fun ListagemLocaisScreen(viewModel: ListagemLocaisViewModel = hiltViewModel(), n
 }
 
 @Composable
-fun meuCard(local: LocalWithProdutos, navController: NavController){
+fun meuCard(local: LocalDTO, navController: NavController){
 
     Card(
         modifier = Modifier
@@ -61,7 +62,7 @@ fun meuCard(local: LocalWithProdutos, navController: NavController){
             .clickable {
                 navController.currentBackStackEntry!!.arguments =
                     Bundle().apply {
-                        putInt("localId", local.local.localId!!)
+                        putInt("localId", local.localId!!)
                     }
 
                 navController.navigate("TelaListagemProdutosLocal")
@@ -75,7 +76,7 @@ fun meuCard(local: LocalWithProdutos, navController: NavController){
             val ( nomeLocal, quantidade, image )= createRefs()
 
             Image(
-                painterResource(id = R.drawable.file_cabinet), contentDescription = local.local.nome,
+                painterResource(id = R.drawable.file_cabinet), contentDescription = local.nome,
                 modifier = Modifier
                     .constrainAs(image){
                         top.linkTo(parent.top, 16.dp)
@@ -84,7 +85,7 @@ fun meuCard(local: LocalWithProdutos, navController: NavController){
                     .height(48.dp)
                     .width(48.dp))
 
-            Text(text = local.local.nome,
+            Text(text = "${local.nome}",
                 modifier = Modifier
                     .constrainAs(nomeLocal) {
                         top.linkTo(parent.top, 16.dp)
@@ -93,7 +94,7 @@ fun meuCard(local: LocalWithProdutos, navController: NavController){
                 textAlign = TextAlign.Center
             )
 
-            Text(text = "${local.produtos.size} itens",
+            Text(text = "${local.quantidadeProdutos} itens",
                 modifier = Modifier
                     .constrainAs(quantidade) {
                         top.linkTo(nomeLocal.bottom, 8.dp)

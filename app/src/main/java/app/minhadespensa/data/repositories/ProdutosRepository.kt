@@ -9,6 +9,7 @@ import app.minhadespensa.data.entities.Produto
 import app.minhadespensa.data.entities.ProdutoLocalQuantidade
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 import javax.inject.Inject
 
 @ViewModelScoped
@@ -56,6 +57,16 @@ class ProdutosRepository @Inject constructor(appDB: AppDB, val plqRepository: Pr
 
     suspend fun delete(produto: Produto) {
         dao.delete(produto)
+    }
+
+    suspend fun ativarOrDesativar(produtoId: Int) {
+        val produtoDTO = getOne(produtoId)
+        if(produtoDTO.produto.deleteDate == null){
+            produtoDTO.produto.deleteDate = Date()
+        }else{
+            produtoDTO.produto.deleteDate = null
+        }
+        dao.update(produtoDTO.produto)
     }
 
 }

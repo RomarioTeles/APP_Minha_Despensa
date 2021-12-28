@@ -1,9 +1,11 @@
 package app.minhadespensa.data.dao
 
 import androidx.room.*
+import app.minhadespensa.data.dto.LocalDTO
 import app.minhadespensa.data.dto.LocalWithProdutos
 import app.minhadespensa.data.dto.ProdutoQuantidade
 import app.minhadespensa.data.dto.ProdutosWithLocais
+import app.minhadespensa.data.entities.EnumStatus
 import app.minhadespensa.data.entities.ProdutoLocalQuantidade
 import kotlinx.coroutines.flow.Flow
 
@@ -24,22 +26,24 @@ interface ProdutoLocalQuantidadeDAO {
     suspend fun delete(produtoLocalQuantidade: ProdutoLocalQuantidade)
 
     @Transaction
-    @Query("""SELECT * FROM produto_local_quantidade pl JOIN locais l ON l.localId = pl.localId""")
-    fun findAll(): Flow<List<LocalWithProdutos>>
+    @Query("""SELECT l.*, 
+        (select COUNT(sq1.produtoId) from produto_local_quantidade sq1 JOIN produtos p ON p.produtoId = sq1.produtoId AND p.deleteDate is null WHERE sq1.localId = l.localId ) as quantidade 
+        FROM locais l WHERE l.deleteDate is null""")
+    fun findAll(): Flow<List<LocalDTO>>
 
     @Transaction
-    @Query("""SELECT * FROM produto_local_quantidade pl JOIN locais l ON l.localId = pl.localId WHERE pl.produtoId = :produtoId""")
+    @Query("""SELECT * FROM produto_local_quantidade pl JOIN locais l ON l.localId = pl.localId AND l.deleteDate is null WHERE pl.produtoId = :produtoId""")
     fun findByProdutoId(produtoId: Int): Flow<List<LocalWithProdutos>>
 
     @Transaction
-    @Query("""SELECT * FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId Where localId = :localId""")
+    @Query("""SELECT * FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId AND p.deleteDate is null Where localId = :localId""")
     fun findByLocalId(localId: Int): Flow<List<ProdutosWithLocais>>
 
     @Transaction
     @Query("""SELECT p.produtoId, p.categoriaId, p.nome, p.codigo, 
-         (select SUM(sq1.quantidade) from produto_local_quantidade sq1 WHERE sq1.produtoId = p.produtoId ) as quantidade 
+         (select SUM(sq1.quantidade) from produto_local_quantidade sq1 WHERE sq1.produtoId = p.produtoId AND sq1.status != 'FALTANDO' ) as quantidade 
         FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId 
-        WHERE p.codigo like '%' || :search || '%' or p.nome  like '%' || :search || '%' 
+        WHERE p.codigo like '%' || :search || '%' or p.nome  like '%' || :search || '%'
         Group By p.produtoId, p.categoriaId, p.nome, p.codigo, quantidade """)
     fun pesquisarProduto(search: String): Flow<List<ProdutoQuantidade>>
 

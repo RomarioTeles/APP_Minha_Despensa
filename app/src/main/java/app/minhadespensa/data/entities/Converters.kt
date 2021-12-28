@@ -23,6 +23,6 @@ class Converters {
 
     @TypeConverter
     fun stringToEnumStatus(value: String?): EnumStatus? {
-        return value?.let{ EnumStatus.valueOf(value) }
+        return value?.let{ EnumStatus.valueOf(value.uppercase()) }
     }
 }

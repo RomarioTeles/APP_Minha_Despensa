@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoriasDAO {
 
-    @Query("SELECT * FROM categorias order by nome")
+    @Query("SELECT * FROM categorias WHERE deleteDate is null order by nome")
     fun findAll() : Flow<List<Categoria>>
 
     @Query("SELECT * FROM categorias WHERE categoriaId = :id")

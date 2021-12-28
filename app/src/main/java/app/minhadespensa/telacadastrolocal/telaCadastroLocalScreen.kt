@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -37,7 +38,7 @@ fun TelaCadastroLocalScreen(viewModel: TelaCadastroLocalViewModel = hiltViewMode
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ){
 
-        val (outlinedTextField, button) = createRefs()
+        val (outlinedTextField, refSave, refDelete) = createRefs()
 
         val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -67,17 +68,34 @@ fun TelaCadastroLocalScreen(viewModel: TelaCadastroLocalViewModel = hiltViewMode
             }
         )
 
+        if(viewModel.isVisible()) {
+            Button(
+                onClick = { viewModel.remover() },
+                modifier = Modifier.fillMaxWidth(0.5f).padding(8.dp)
+                    .height(50.dp)
+                    .constrainAs(refDelete) {
+                        top.linkTo(outlinedTextField.bottom, 16.dp)
+                    }
+            ) {
+                Text(text = viewModel.getTextoBotaoArquivar())
+            }
+        }
+
         Button(
             onClick = {viewModel.cadastrar()},
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(0.5f).padding(8.dp)
                 .height(50.dp)
-                .constrainAs(button) {
+                .constrainAs(refSave) {
                     top.linkTo(outlinedTextField.bottom, 16.dp)
+                    start.linkTo(refDelete.end)
                 }
         ) {
-            Text(text = "Cadastrar")
+            Text(text = "Gravar")
         }
+
+        createHorizontalChain(
+            refDelete, refSave, chainStyle = ChainStyle.Packed
+        )
 
     }
 

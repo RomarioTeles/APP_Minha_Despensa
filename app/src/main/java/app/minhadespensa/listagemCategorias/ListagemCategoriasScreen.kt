@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -74,12 +75,12 @@ fun meuCard(categoria: Categoria, navController: NavController){
         ConstraintLayout(
 
         ) {
-            val ( text, image )= createRefs()
+            val ( refNome, refIcon )= createRefs()
 
             Image(
                 painterResource(id = R.drawable.shape_outline), contentDescription = categoria.nome,
                 modifier = Modifier
-                    .constrainAs(image){
+                    .constrainAs(refIcon){
                         top.linkTo(parent.top, 16.dp)
                         start.linkTo(parent.start, 16.dp)
                     }
@@ -88,9 +89,9 @@ fun meuCard(categoria: Categoria, navController: NavController){
 
             Text(text = categoria.nome,
                 modifier = Modifier
-                    .constrainAs(text) {
+                    .constrainAs(refNome) {
                         top.linkTo(parent.top, 16.dp)
-                        start.linkTo(image.end, 16.dp)
+                        start.linkTo(refIcon.end, 16.dp)
                     },
                 textAlign = TextAlign.Center
             )

@@ -11,10 +11,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class TelaCadastroLocalViewModel @Inject constructor(private val dao: CategoriasRepository): ViewModel() {
+
+    val categoriaId = mutableStateOf(0)
+
+    val deleteDate : Date? = null
 
     val nomeCategoria = mutableStateOf("")
 
@@ -35,5 +40,17 @@ class TelaCadastroLocalViewModel @Inject constructor(private val dao: Categorias
 
     fun onChangeNome(newValue: String){
         nomeCategoria.value = newValue
+    }
+
+    fun remover() {
+        TODO("Not yet implemented")
+    }
+
+    fun isVisible(): Boolean {
+        return categoriaId.value != 0
+    }
+
+    fun getTextoBotaoArquivar(): String {
+        return if (deleteDate == null) "Inativar" else "Ativar"
     }
 }
