@@ -6,6 +6,7 @@ import app.minhadespensa.data.entities.Categoria
 import app.minhadespensa.data.entities.Local
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 import javax.inject.Inject
 
 @ViewModelScoped
@@ -35,6 +36,18 @@ class LocaisRepository  @Inject constructor(appDB: AppDB){
 
     suspend fun delete(local: Local) {
         dao.delete(local)
+    }
+
+    suspend fun ativarOrDesativar(localId: Int) {
+        val local = getOne(localId)
+        if(local != null){
+            if(local.deleteDate == null){
+                local.deleteDate = Date()
+            }else{
+                local.deleteDate = null
+            }
+            dao.update(local)
+        }
     }
 
 

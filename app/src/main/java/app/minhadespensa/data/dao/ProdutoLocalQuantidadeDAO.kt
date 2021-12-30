@@ -26,10 +26,16 @@ interface ProdutoLocalQuantidadeDAO {
     suspend fun delete(produtoLocalQuantidade: ProdutoLocalQuantidade)
 
     @Transaction
-    @Query("""SELECT l.*, 
+    @Query("""SELECT l.localId, l.nome, l.deleteDate, 
         (select COUNT(sq1.produtoId) from produto_local_quantidade sq1 JOIN produtos p ON p.produtoId = sq1.produtoId AND p.deleteDate is null WHERE sq1.localId = l.localId ) as quantidade 
         FROM locais l WHERE l.deleteDate is null""")
     fun findAll(): Flow<List<LocalDTO>>
+
+    @Transaction
+    @Query("""SELECT l.localId, l.nome, l.deleteDate, 
+        (select COUNT(sq1.produtoId) from produto_local_quantidade sq1 JOIN produtos p ON p.produtoId = sq1.produtoId AND p.deleteDate is null WHERE sq1.localId = l.localId ) as quantidade 
+        FROM locais l WHERE l.deleteDate is not null""")
+    fun findAllInativos(): Flow<List<LocalDTO>>
 
     @Transaction
     @Query("""SELECT * FROM produto_local_quantidade pl JOIN locais l ON l.localId = pl.localId AND l.deleteDate is null WHERE pl.produtoId = :produtoId""")
@@ -40,7 +46,7 @@ interface ProdutoLocalQuantidadeDAO {
     fun findByLocalId(localId: Int): Flow<List<ProdutosWithLocais>>
 
     @Transaction
-    @Query("""SELECT p.produtoId, p.categoriaId, p.nome, p.codigo, 
+    @Query("""SELECT p.produtoId, p.categoriaId, p.nome, p.codigo, p.deleteDate,
          (select SUM(sq1.quantidade) from produto_local_quantidade sq1 WHERE sq1.produtoId = p.produtoId AND sq1.status != 'FALTANDO' ) as quantidade 
         FROM produto_local_quantidade pl JOIN produtos p ON p.produtoId = pl.produtoId 
         WHERE p.codigo like '%' || :search || '%' or p.nome  like '%' || :search || '%'

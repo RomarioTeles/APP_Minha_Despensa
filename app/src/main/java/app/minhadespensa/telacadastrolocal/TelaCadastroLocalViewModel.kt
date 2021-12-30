@@ -14,7 +14,7 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class TelaCadastroLocalViewModel @Inject constructor(private val dao: LocaisRepository): ViewModel() {
+class TelaCadastroLocalViewModel @Inject constructor(private val repository: LocaisRepository): ViewModel() {
 
     val nomeLocal = mutableStateOf("")
 
@@ -22,14 +22,21 @@ class TelaCadastroLocalViewModel @Inject constructor(private val dao: LocaisRepo
 
     val status : MutableLiveData<Boolean> = MutableLiveData()
 
-    val deleteDate : Date? = null
+    var deleteDate : Date? = null
+
+    val hasDeleteDate = mutableStateOf(false)
 
     fun cadastrar(){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
-                val local = Local(nome = nomeLocal.value)
+                val local = Local(localId = localId.value,nome = nomeLocal.value)
 
-                dao.insert(local)
+                if(local.localId == 0) {
+                    repository.insert(local)
+                }else{
+                    repository.update(local)
+                }
+
                 withContext(Dispatchers.Main){
                     status.value = true
                 }
@@ -42,14 +49,25 @@ class TelaCadastroLocalViewModel @Inject constructor(private val dao: LocaisRepo
     }
 
     fun remover() {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.ativarOrDesativar(localId.value)
+            }
+        }
+        deleteDate = if(hasDeleteDate.value) null else Date()
+        hasDeleteDate.value = deleteDate != null
     }
 
     fun isVisible(): Boolean {
         return localId.value != 0
     }
 
-    fun getTextoBotaoArquivar(): String {
-        return if (deleteDate == null) "Inativar" else "Ativar"
+    fun set(local: Local?) {
+        if(local != null && localId.value == 0){
+            nomeLocal.value = local.nome
+            localId.value = local.localId!!
+            deleteDate = local.deleteDate
+            hasDeleteDate.value = deleteDate != null
+        }
     }
 }

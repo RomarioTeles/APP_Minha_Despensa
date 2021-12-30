@@ -21,14 +21,19 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import app.minhadespensa.data.entities.Local
 
 @ExperimentalComposeUiApi
 @Composable
-fun TelaCadastroLocalScreen(viewModel: TelaCadastroLocalViewModel = hiltViewModel(), navController: NavController){
+fun TelaCadastroLocalScreen(local: Local? = null, viewModel: TelaCadastroLocalViewModel = hiltViewModel(), navController: NavController){
+
+    viewModel.set(local)
 
     val nome = viewModel.nomeLocal.value
 
     val status = viewModel.status.observeAsState()
+
+    val hasDeleteDate = viewModel.hasDeleteDate.value
 
     if(status.value == true){
         navController.navigate("TelaListagemLocal")
@@ -77,7 +82,7 @@ fun TelaCadastroLocalScreen(viewModel: TelaCadastroLocalViewModel = hiltViewMode
                         top.linkTo(outlinedTextField.bottom, 16.dp)
                     }
             ) {
-                Text(text = viewModel.getTextoBotaoArquivar())
+                Text(text = if (hasDeleteDate) "Ativar" else "Inativar" )
             }
         }
 
@@ -90,7 +95,7 @@ fun TelaCadastroLocalScreen(viewModel: TelaCadastroLocalViewModel = hiltViewMode
                     start.linkTo(refDelete.end)
                 }
         ) {
-            Text(text = "Gravar")
+            Text(text = "Salvar")
         }
 
         createHorizontalChain(

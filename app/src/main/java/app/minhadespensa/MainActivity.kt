@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import app.minhadespensa.data.entities.Local
 import app.minhadespensa.data.entities.Produto
 import app.minhadespensa.listagemCategorias.ListagemCategoriasScreen
 import app.minhadespensa.listagemLocais.ListagemLocaisScreen
@@ -42,9 +43,10 @@ class MainActivity : ComponentActivity() {
                         IconTab(navHostController = navController)
                     }
                     composable("TelaCadastroLocal"){
+                        val local = navController.previousBackStackEntry!!.arguments?.getParcelable<Local>("local")
 
                         ContentWrapper(){
-                            TelaCadastroLocalScreen(navController = navController)
+                            TelaCadastroLocalScreen(navController = navController, local = local)
                         }
 
                     }

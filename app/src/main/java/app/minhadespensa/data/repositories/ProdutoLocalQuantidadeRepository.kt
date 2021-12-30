@@ -21,6 +21,10 @@ class ProdutoLocalQuantidadeRepository @Inject constructor(appDB: AppDB){
         return dao.findAll()
     }
 
+    fun findAllInativos(): Flow<List<LocalDTO>>{
+        return dao.findAllInativos()
+    }
+
     fun findByLocalId(localId: Int): Flow<List<ProdutosWithLocais>> {
         return dao.findByLocalId(localId)
     }
